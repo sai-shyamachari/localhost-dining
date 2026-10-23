@@ -1,0 +1,494 @@
+{
+  "info": {
+    "_postman_id": "localhost-dining-api-v1",
+    "name": "LocalHost Dining API",
+    "description": "Complete REST API collection for LocalHost Dining - Multi-tenant Restaurant Reservation Platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bistro_id",
+      "value": "6ad09d5090c92847612a7b9d",
+      "type": "string"
+    },
+    {
+      "key": "sakura_id",
+      "value": "6ad09d5090c92847612a7b9e",
+      "type": "string"
+    },
+    {
+      "key": "reservation_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/healthcheck",
+              "host": ["{{base_url}}"],
+              "path": ["healthcheck"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Charlie Diner\",\n  \"email\": \"charlie@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"diner\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login - Super Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"superadmin@localhostdining.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Restaurant Admin (Bistro)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin.bistro@localhostdining.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Diner (Alice)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice.diner@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/verify-email/:verificationtoken",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "verify-email", ":verificationtoken"],
+              "variable": [{ "key": "verificationtoken", "value": "TOKEN_FROM_EMAIL" }]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice.diner@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/reset-password/:resettoken",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "reset-password", ":resettoken"],
+              "variable": [{ "key": "resettoken", "value": "TOKEN_FROM_EMAIL" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Restaurants (Tenants)",
+      "item": [
+        {
+          "name": "List All Restaurants (Public with search & filter)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants?neighborhood=Downtown&cuisine=Italian",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants"],
+              "query": [
+                { "key": "neighborhood", "value": "Downtown" },
+                { "key": "cuisine", "value": "Italian" },
+                { "key": "search", "value": "Gourmet", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Restaurant by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Check Live Availability (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}/availability?date=2026-10-15&partySize=4",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}", "availability"],
+              "query": [
+                { "key": "date", "value": "2026-10-15" },
+                { "key": "partySize", "value": "4" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Onboard Restaurant (Super Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"La Trattoria Romana\",\n  \"description\": \"Authentic Roman pastas, thin crust pizzas, and imported Italian wines.\",\n  \"cuisine\": [\"Italian\", \"Pizza\", \"Pasta\"],\n  \"neighborhood\": \"Uptown\",\n  \"address\": {\n    \"street\": \"89 Olive Way\",\n    \"city\": \"Metropolis\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10022\"\n  },\n  \"phone\": \"+1 555-018-7744\",\n  \"email\": \"info@latrattoriaroma.com\",\n  \"adminEmail\": \"admin.trattoria@localhostdining.com\",\n  \"adminPassword\": \"Password123!\",\n  \"adminName\": \"Gianluigi Buffon\",\n  \"slotDurationMinutes\": 90\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants"]
+            }
+          }
+        },
+        {
+          "name": "Update Restaurant Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+1 555-019-9999\",\n  \"description\": \"Updated description with newest award-winning seasonal menus.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Restaurant (Super Admin Only)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Table Inventory",
+      "item": [
+        {
+          "name": "List Restaurant Tables",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}/tables",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}", "tables"]
+            }
+          }
+        },
+        {
+          "name": "Add Table",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tableNumber\": \"T7-Rooftop\",\n  \"capacity\": 4,\n  \"location\": \"balcony\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}/tables",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}", "tables"]
+            }
+          }
+        },
+        {
+          "name": "Update Table",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"capacity\": 6,\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}/tables/:tableId",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}", "tables", ":tableId"],
+              "variable": [{ "key": "tableId", "value": "TABLE_ID_HERE" }]
+            }
+          }
+        },
+        {
+          "name": "Delete Table",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/restaurants/{{bistro_id}}/tables/:tableId",
+              "host": ["{{base_url}}"],
+              "path": ["restaurants", "{{bistro_id}}", "tables", ":tableId"],
+              "variable": [{ "key": "tableId", "value": "TABLE_ID_HERE" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Reservations",
+      "item": [
+        {
+          "name": "Create Reservation (Diner / Walk-in)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{bistro_id}}\",\n  \"reservationDate\": \"2026-10-16\",\n  \"startTime\": \"19:00\",\n  \"partySize\": 2,\n  \"specialRequests\": \"Window booth if available\",\n  \"guestPhone\": \"+1 555-012-3456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["reservations"]
+            }
+          }
+        },
+        {
+          "name": "Get My Bookings (Diner History)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/reservations/my-bookings",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "my-bookings"]
+            }
+          }
+        },
+        {
+          "name": "Get Restaurant Floor Feed (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/reservations/restaurant/{{bistro_id}}?date=2026-10-15",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "restaurant", "{{bistro_id}}"],
+              "query": [
+                { "key": "date", "value": "2026-10-15" },
+                { "key": "status", "value": "confirmed", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Specific Reservation Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Reservation Status (Seated, Completed, etc.)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"seated\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Unforeseen schedule conflict\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reservations/{{reservation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["reservations", "{{reservation_id}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
